@@ -4,31 +4,34 @@ import 'package:chaty/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class LoginPage extends StatefulWidget{
+class RegisterPage extends StatefulWidget{
   final void Function()? onTap;
-  const LoginPage({super.key,required this.onTap});
+  const RegisterPage({super.key,required this.onTap});
 
   @override
-  State<LoginPage> createState() =>_LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage>{
+class _RegisterPageState extends State<RegisterPage>{
 
   //text controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmpasswordController = TextEditingController();
+  final usernameController = TextEditingController();
 
-  //sign in
-  void signIn() async{
-    //get auth service
-    final authService = Provider.of<AuthService>(context, listen: false);
+  //signup
+  void signUp() async{
+    if(passwordController.text != confirmpasswordController.text){
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Passwords do not match!"),),);
+      return;
+    }
 
+    //get auth service if passwords match
+    final authService = Provider.of<AuthService>(context,listen : false);
     try{
-      await authService.signInWithEmailAndPassword(
-          emailController.text,
-          passwordController.text
-      );
-    } catch (e){
+      await authService.signUpWithEmailAndPassword(emailController.text, passwordController.text,usernameController.text);
+    }catch (e){
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString(),),),);
     }
   }
@@ -53,10 +56,10 @@ class _LoginPageState extends State<LoginPage>{
                     color: Colors.blueGrey,
                   ),
 
-                  //welcome back message
+                  //create account message
                   const SizedBox(height: 25),
                   const Text(
-                    "Welcome back you\'ve been missed!",
+                    "Let's create an account for you!",
                     style: TextStyle(
                       fontSize: 16,
                     ),
@@ -73,17 +76,35 @@ class _LoginPageState extends State<LoginPage>{
 
                   const SizedBox(height: 10),
 
+                  //username text field
+                  MyTextField(
+                      controller: usernameController,
+                      hintText: "Username",
+                      obscureText: false
+                  ),
+
+                  const SizedBox(height: 10),
+
                   // password text field
                   MyTextField(
-                      controller: passwordController,
-                      hintText: "Password",
-                      obscureText: true,
+                    controller: passwordController,
+                    hintText: "Password",
+                    obscureText: true,
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // confirm password text field
+                  MyTextField(
+                    controller: confirmpasswordController,
+                    hintText: "Confirm Password",
+                    obscureText: true,
                   ),
 
                   const SizedBox(height: 25),
 
                   //sign in button
-                  MyButton(onTap: signIn, text: "Sign In"),
+                  MyButton(onTap: signUp, text: "Sign Up"),
 
                   const SizedBox(height: 50),
 
@@ -91,12 +112,12 @@ class _LoginPageState extends State<LoginPage>{
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Not a Member?"),
+                      const Text("Already a Member?"),
                       const SizedBox(width: 4),
                       GestureDetector(
                         onTap: widget.onTap,
                         child: const Text(
-                          "Register Now",
+                          "Login Now",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
